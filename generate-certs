@@ -43,17 +43,19 @@ distinguished_name = req_distinguished_name
 basicConstraints = CA:FALSE
 keyUsage = nonRepudiation, digitalSignature, keyEncipherment
 extendedKeyUsage = clientAuth, serverAuth
+subjectAltName = @alt_names
 
 [ v3_ca ]
 basicConstraints = critical,CA:TRUE
 subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid:always,issuer:always
+subjectAltName = @alt_names
+
+[alt_names]
 EOM
 
 if [[ -n ${SSL_DNS} || -n ${SSL_IP} ]]; then
     cat >> ${SSL_CONFIG} <<EOM
-subjectAltName = @alt_names
-[alt_names]
 EOM
 
     IFS=","
@@ -94,8 +96,7 @@ openssl genrsa -out ${SSL_KEY} ${SSL_SIZE} > /dev/null || exit 1
 openssl req -new -key ${SSL_KEY} -out ${SSL_CSR} -subj "/CN=${SSL_SUBJECT}" -config ${SSL_CONFIG} > /dev/null || exit 1
 
 [[ -z $SILENT ]] && echo "====> Generating new SSL CERT ${SSL_CERT}"
-openssl x509 -req -in ${SSL_CSR} -CA ${CA_CERT} -CAkey ${CA_KEY} -CAcreateserial -out ${SSL_CERT} \
-    -days ${SSL_EXPIRE} -extensions v3_req -extfile ${SSL_CONFIG} > /dev/null || exit 1
+openssl x509 -req -in ${SSL_CSR} -CA ${CA_CERT} -CAkey ${CA_KEY} -CAcreateserial -out ${SSL_CERT} -days ${SSL_EXPIRE} -extensions v3_req -extfile ${SSL_CONFIG} > /dev/null || exit 1
 
 # create k8s secret file
 cat << EOM > /certs/secret.yaml
