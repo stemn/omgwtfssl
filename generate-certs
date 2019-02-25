@@ -40,7 +40,7 @@ distinguished_name = req_distinguished_name
 [req_distinguished_name]
 
 [ v3_req ]
-basicConstraints = CA:FALSE
+basicConstraints = CA:TRUE
 keyUsage = nonRepudiation, digitalSignature, keyEncipherment
 extendedKeyUsage = clientAuth, serverAuth
 subjectAltName = @alt_names
